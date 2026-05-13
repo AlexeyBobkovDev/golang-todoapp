@@ -3,6 +3,8 @@ package core_http_server
 import (
 	"fmt"
 	"net/http"
+
+	core_http_middleware "github.com/AlexeyBobkovDev/golang-todoapp/internal/core/transport/http/middleware"
 )
 
 type ApiVersion string
@@ -16,20 +18,30 @@ var (
 type APIVersionRouter struct {
 	*http.ServeMux
 	apiVersion ApiVersion
+	middleware []core_http_middleware.Middleware
 }
 
 func NewAPIVersionRouter(
 	apiVersion ApiVersion,
+	middleware ...core_http_middleware.Middleware,
 ) *APIVersionRouter {
 	return &APIVersionRouter{
 		ServeMux:   http.NewServeMux(),
 		apiVersion: apiVersion,
+		middleware: middleware,
 	}
 }
 
 func (r *APIVersionRouter) RegisterRoutes(routers ...Route) {
 	for _, route := range routers {
-		path := fmt.Sprintf("%s %s", route.Method, route.Path)
-		r.Handle(path, route.Handler)
+		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
+		r.Handle(pattern, route.WithMiddleware())
 	}
+}
+
+func (r *APIVersionRouter) WithMiddleware() http.Handler {
+	return core_http_middleware.ChainMiddleware(
+		r.ServeMux,
+		r.middleware...,
+	)
 }
