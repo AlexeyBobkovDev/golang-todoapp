@@ -68,7 +68,7 @@ func (h *TasksHTTPHandler) Routes() []core_http_server.Route {
 			Handler: h.GetTask,
 		},
 		{
-			Method:  http.MethodGet,
+			Method:  http.MethodDelete,
 			Path:    "/tasks/{id}",
 			Handler: h.DeleteTask,
 		},

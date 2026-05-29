@@ -53,14 +53,14 @@ func (r *TasksRepository) PatchTask(
 	var taskModel TaskModel
 
 	err := row.Scan(
-		taskModel.ID,
-		taskModel.Version,
-		taskModel.Title,
-		taskModel.Description,
-		taskModel.Completed,
-		taskModel.CreatedAt,
-		taskModel.CompletedAt,
-		taskModel.AuthorUserID,
+		&taskModel.ID,
+		&taskModel.Version,
+		&taskModel.Title,
+		&taskModel.Description,
+		&taskModel.Completed,
+		&taskModel.CreatedAt,
+		&taskModel.CompletedAt,
+		&taskModel.AuthorUserID,
 	)
 	if err != nil {
 		if errors.Is(err, core_postgres_pool.ErrNoRows) {
