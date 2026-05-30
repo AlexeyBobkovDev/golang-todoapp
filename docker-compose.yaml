@@ -20,6 +20,8 @@ services:
     ports:
       - "5050:5050"
     restart: "always"
+    depends_on:
+      - todoapp-postgres
 
   todoapp-postgres:
     image: postgres:18.1-bookworm
