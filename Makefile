@@ -1,5 +1,5 @@
 include .env
-export 
+export
 
 export PROJECT_ROOT=$(shell pwd)
 
@@ -24,7 +24,7 @@ env-port-forward:
 
 env-port-close:
 	@docker compose down port-forwarder
-	
+
 
 migrate-create:
 	@if [ -z "$(name)" ]; then \
@@ -68,3 +68,12 @@ logs-cleanup:
 	else \
 		echo "Clean up was discarded"; \
 	fi
+
+todoapp-deploy:
+	@docker compose up -d --build todoapp
+
+todoapp-undeploy:
+	@docker compose down todoapp
+
+ps:
+	@docker compose ps
