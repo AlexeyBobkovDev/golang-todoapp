@@ -1,4 +1,5 @@
 .env
 out
 .idea
+.gigaide
 .vscode

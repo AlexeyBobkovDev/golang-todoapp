@@ -59,8 +59,8 @@ func NewTaskUninitialized(
 	)
 }
 
-func (t *Task) CompletionDuration() *time.Duration{
-	if !t.Completed || t.CompletedAt == nil{
+func (t *Task) CompletionDuration() *time.Duration {
+	if !t.Completed || t.CompletedAt == nil {
 		return nil
 	}
 

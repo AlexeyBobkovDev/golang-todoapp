@@ -11,6 +11,18 @@ import (
 
 type GetUsersResponse []UserDTOResponse
 
+// GetUsers godoc
+//
+//	@Summary		A list of users
+//	@Description	Get a list of users with an optional pagination
+//	@Tags			users
+//	@Produce		json
+//	@Param			limit	query		int									false	"Size of the page with users"
+//	@Param			offset	query		int									false	"Offset of the page with users"
+//	@Success		200		{object}	GetUsersResponse					"Successfully getting a list of users"
+//	@Failure		400		{object}	core_http_response.ErrorResponse	"Bad REquest"
+//	@Failure		500		{object}	core_http_response.ErrorResponse	"Internal SErver Error"
+//	@Router			/users [get]
 func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
@@ -42,7 +54,7 @@ func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 
 func getLimitOffsetQueryParams(r *http.Request) (*int, *int, error) {
 	const (
-		limitQueryParamKey = "limit"
+		limitQueryParamKey  = "limit"
 		offsetQueryParamKey = "offset"
 	)
 

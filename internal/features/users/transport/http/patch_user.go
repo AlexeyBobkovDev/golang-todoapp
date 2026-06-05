@@ -13,10 +13,30 @@ import (
 )
 
 type PatchUserRequest struct {
-	FullName    core_http_types.Nullable[string] `json:"full_name"`
-	PhoneNumber core_http_types.Nullable[string] `json:"phone_number"`
+	FullName    core_http_types.Nullable[string] `json:"full_name" swaggertype:"string" example:"Ivan Ivanovich"`
+	PhoneNumber core_http_types.Nullable[string] `json:"phone_number" swaggertype:"string" example:"+79998887766"`
 }
 
+// PatchUser godoc
+//
+//	@Summary		Change the user
+//	@Description	Change an information about the existing user by his ID
+//	@Description	### Field update logic (three-state update semantics)
+//	@Description	1. Field not provided: `phone_number` is ignored and not persisted to the database.
+//	@Description	2. Explicit value provided: `"phone_number": "+79998887766"` updates the stored value.
+//	@Description	3. Explicit null value: `"phone_number": null` clears the field (sets DB value to NULL).
+//	@Description	Constraint: `full_name` must not be null.
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int									true	"ID of the user to change"
+//	@Param			request	body		PatchUserRequest					true	"PatchUser request body"
+//	@Success		200		{object}	PatchUserResponse					"Successfully patched the user"
+//	@Failure		400		{object}	core_http_response.ErrorResponse	"Bad Request"
+//	@Failure		404		{object}	core_http_response.ErrorResponse	"User Not Found"
+//	@Failure		409		{object}	core_http_response.ErrorResponse	"Conflict"
+//	@Failure		500		{object}	core_http_response.ErrorResponse	"Internal Server Error"
+//	@Router			/users/{id} [patch]
 func (r *PatchUserRequest) Validate() error {
 	if r.FullName.Set {
 		if r.FullName.Value == nil {

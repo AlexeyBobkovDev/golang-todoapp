@@ -83,9 +83,9 @@ type UserPatch struct {
 func NewUserPatch(
 	fullName Nullable[string],
 	phoneNumber Nullable[string],
-)UserPatch{
+) UserPatch {
 	return UserPatch{
-		FullName: fullName,
+		FullName:    fullName,
 		PhoneNumber: phoneNumber,
 	}
 }

@@ -1,0 +1,637 @@
+basePath: /api/v1
+definitions:
+  core_http_response.ErrorResponse:
+    properties:
+      error:
+        example: full error text
+        type: string
+      message:
+        example: short human-readable message
+        type: string
+    type: object
+  statistics_transport_http.GetStatisticsResponse:
+    properties:
+      tasks_average_completion_time:
+        example: 1m30s
+        type: string
+      tasks_completed:
+        example: 10
+        type: integer
+      tasks_completed_rate:
+        example: 20
+        type: number
+      tasks_created:
+        example: 50
+        type: integer
+    type: object
+  tasks_transport_http.CreateTaskRequest:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      description:
+        example: Do homework till Thursday
+        maxLength: 1000
+        minLength: 1
+        type: string
+      title:
+        example: Homework
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - author_user_id
+    - title
+    type: object
+  tasks_transport_http.CreateTaskResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-06-05T16:15:00Z"
+        type: string
+      description:
+        example: Do a math homework until Wednesday
+        type: string
+      id:
+        example: 15
+        type: integer
+      title:
+        example: Homework
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  tasks_transport_http.GetTaskResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-06-05T16:15:00Z"
+        type: string
+      description:
+        example: Do a math homework until Wednesday
+        type: string
+      id:
+        example: 15
+        type: integer
+      title:
+        example: Homework
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  tasks_transport_http.PatchTaskRequest:
+    properties:
+      completed:
+        example: "false"
+        type: string
+      description:
+        example: Walk a dog at 6:30 am
+        type: string
+      title:
+        example: Walk a dog
+        type: string
+    type: object
+  tasks_transport_http.PatchTaskResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-06-05T16:15:00Z"
+        type: string
+      description:
+        example: Do a math homework until Wednesday
+        type: string
+      id:
+        example: 15
+        type: integer
+      title:
+        example: Homework
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  tasks_transport_http.TaskDTOResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-06-05T16:15:00Z"
+        type: string
+      description:
+        example: Do a math homework until Wednesday
+        type: string
+      id:
+        example: 15
+        type: integer
+      title:
+        example: Homework
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  users_transport_http.CreateUserRequest:
+    properties:
+      full_name:
+        example: Ivan Ivanov
+        maxLength: 100
+        minLength: 3
+        type: string
+      phone_number:
+        example: "+79998887766"
+        maxLength: 15
+        minLength: 10
+        type: string
+    required:
+    - full_name
+    type: object
+  users_transport_http.CreateUserResponse:
+    properties:
+      full_name:
+        example: Ivan Ivanov
+        type: string
+      id:
+        example: 10
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  users_transport_http.GetUserResponse:
+    properties:
+      full_name:
+        example: Ivan Ivanov
+        type: string
+      id:
+        example: 10
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  users_transport_http.PatchUserRequest:
+    properties:
+      full_name:
+        example: Ivan Ivanovich
+        type: string
+      phone_number:
+        example: "+79998887766"
+        type: string
+    type: object
+  users_transport_http.PatchUserResponse:
+    properties:
+      full_name:
+        example: Ivan Ivanov
+        type: string
+      id:
+        example: 10
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+  users_transport_http.UserDTOResponse:
+    properties:
+      full_name:
+        example: Ivan Ivanov
+        type: string
+      id:
+        example: 10
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 3
+        type: integer
+    type: object
+host: 127.0.0.1:5050
+info:
+  contact: {}
+  description: Todo Application REST-API schema
+  title: Golang Todo API
+  version: "1.0"
+paths:
+  /statistics:
+    get:
+      description: Get statistics of users with an optional filtering by user_id and/or
+        time range.
+      parameters:
+      - description: ID of user to fetch statistics
+        in: query
+        name: user_id
+        type: integer
+      - description: 'Start date of statistics interval (included), format: YYYY-MM-DD'
+        in: query
+        name: from
+        type: string
+      - description: 'End date of statistics interval (NOT included), format: YYYY-MM-DD'
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Statistics was collected successfully
+          schema:
+            $ref: '#/definitions/statistics_transport_http.GetStatisticsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Get statistics
+      tags:
+      - statistics
+  /tasks:
+    get:
+      description: Get tasks with an optional pagination or/and filtration by author
+        id
+      parameters:
+      - description: Filter tasks by user_id
+        in: query
+        name: user_id
+        type: integer
+      - description: Size of page with tasks
+        in: query
+        name: limit
+        type: integer
+      - description: Shift pages with tasks
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tasks were returned successfully
+          schema:
+            items:
+              $ref: '#/definitions/tasks_transport_http.TaskDTOResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Get tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task on the server
+      parameters:
+      - description: Body of a task to create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tasks_transport_http.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task was successfully created
+          schema:
+            $ref: '#/definitions/tasks_transport_http.CreateTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: Author not found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Create task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: Delete the task from the system by ID
+      parameters:
+      - description: ID of task to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Task was deleted successfully
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Delete task
+      tags:
+      - tasks
+    get:
+      description: Get the task in the system  by ID
+      parameters:
+      - description: ID of task to get
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task was returned successfully
+          schema:
+            $ref: '#/definitions/tasks_transport_http.GetTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Get task
+      tags:
+      - tasks
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Update an information about a task already existing in the system
+        ### Logic of update fields (Three-state logic):
+        1. **Field is not given**: `description` is ignored. The value is not changed in DB
+        2. **Field is given explicitly**: `"description": "At 6:30 am walk a dog"`
+        3. **Field is given as `null`**: `"description": null` - clear the field in the DB (set to NULL)
+        Constraints: `title` and `completed` can not be set as `null`
+      parameters:
+      - description: ID of user to patch
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: PatchTask body (fields to update)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tasks_transport_http.PatchTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task was updated successfully
+          schema:
+            $ref: '#/definitions/tasks_transport_http.PatchTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Patch task
+      tags:
+      - tasks
+  /users:
+    get:
+      description: Get a list of users with an optional pagination
+      parameters:
+      - description: Size of the page with users
+        in: query
+        name: limit
+        type: integer
+      - description: Offset of the page with users
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully getting a list of users
+          schema:
+            items:
+              $ref: '#/definitions/users_transport_http.UserDTOResponse'
+            type: array
+        "400":
+          description: Bad REquest
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal SErver Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: A list of users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user in the system
+      parameters:
+      - description: CreateUser - request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users_transport_http.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created user
+          schema:
+            $ref: '#/definitions/users_transport_http.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Create a user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Delete an existing user in the system by his ID
+      parameters:
+      - description: ID of the user to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: User successfully deleted
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Delete the user
+      tags:
+      - users
+    get:
+      description: Get the user by his ID
+      parameters:
+      - description: ID of the user to get
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The user is successfully found
+          schema:
+            $ref: '#/definitions/users_transport_http.GetUserResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: The user is not found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Get user
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Change an information about the existing user by his ID
+        ### Field update logic (three-state update semantics)
+        1. Field not provided: `phone_number` is ignored and not persisted to the database.
+        2. Explicit value provided: `"phone_number": "+79998887766"` updates the stored value.
+        3. Explicit null value: `"phone_number": null` clears the field (sets DB value to NULL).
+        Constraint: `full_name` must not be null.
+      parameters:
+      - description: ID of the user to change
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: PatchUser request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users_transport_http.PatchUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully patched the user
+          schema:
+            $ref: '#/definitions/users_transport_http.PatchUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "404":
+          description: User Not Found
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core_http_response.ErrorResponse'
+      summary: Change the user
+      tags:
+      - users
+swagger: "2.0"
