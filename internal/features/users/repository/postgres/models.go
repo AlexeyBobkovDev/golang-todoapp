@@ -12,7 +12,7 @@ type UserModel struct {
 func userDomainsFromModels(users []UserModel) []domain.User {
 	userDomains := make([]domain.User, len(users))
 
-	for i, user := range users{
+	for i, user := range users {
 		userDomains[i] = domain.NewUser(
 			user.ID,
 			user.Version,
