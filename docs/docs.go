@@ -708,8 +708,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "completed": {
-                    "type": "string",
-                    "example": "false"
+                    "type": "boolean",
+                    "example": false
                 },
                 "description": {
                     "type": "string",

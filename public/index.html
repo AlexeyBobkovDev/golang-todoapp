@@ -1,0 +1,2245 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Список дел</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f3f4f6;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --sidebar-active-bg: #eff6ff;
+            --sidebar-active-text: #2563eb;
+            --input-bg: #ffffff;
+            --input-border: #d1d5db;
+            --shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.10);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.14);
+            --radius: 10px;
+            --sidebar-width: 270px;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark {
+            --bg: #0f1117;
+            --sidebar-bg: #161b27;
+            --card-bg: #1c2333;
+            --border: #2a3347;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --danger: #f87171;
+            --sidebar-active-bg: rgba(59, 130, 246, 0.12);
+            --sidebar-active-text: #60a5fa;
+            --input-bg: #1c2333;
+            --input-border: #2a3347;
+            --shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Smooth global theme transition */
+        body,
+        .sidebar,
+        .main-content,
+        .task-card,
+        .user-card,
+        .stat-card,
+        .filter-bar,
+        .progress-section,
+        .modal,
+        .toast,
+        .nav-item,
+        .field-input,
+        .field-textarea,
+        .select-wrapper select,
+        .num-input,
+        .date-input,
+        .badge,
+        .version-badge,
+        .status-badge,
+        .logo-icon,
+        .icon-btn,
+        .btn-reset,
+        .btn-outline,
+        .btn-edit,
+        .btn-danger,
+        .btn-cancel {
+            transition-property: background, background-color, border-color, color, box-shadow;
+            transition-duration: 0.35s;
+            transition-timing-function: var(--ease);
+        }
+
+        /* Dark overrides for elements using hardcoded colors */
+        body.dark .logo-icon {
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        body.dark .logo-version {
+            background: #2a3347;
+            color: var(--text-secondary);
+        }
+
+        body.dark .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        body.dark .progress-bar-wrap {
+            background: #2a3347;
+        }
+
+        body.dark .badge {
+            background: #2a3347;
+        }
+
+        body.dark .version-badge {
+            background: #2a3347;
+        }
+
+        body.dark .status-badge.in-progress {
+            background: rgba(202, 138, 4, 0.15);
+            color: #fbbf24;
+        }
+
+        body.dark .status-badge.done-badge {
+            background: rgba(34, 197, 94, 0.12);
+            color: #4ade80;
+        }
+
+        body.dark .task-checkbox {
+            border-color: #2a3347;
+        }
+
+        body.dark .task-checkbox:hover {
+            border-color: #4ade80;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
+        }
+
+        body.dark .icon-btn:hover {
+            background: #2a3347;
+        }
+
+        body.dark .icon-btn.delete:hover {
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        body.dark .btn-primary {
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+
+        body.dark .btn-primary:hover {
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.5);
+        }
+
+        body.dark .modal-overlay {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark .modal-close:hover {
+            background: #2a3347;
+        }
+
+        body.dark .btn-cancel:hover {
+            background: #2a3347;
+        }
+
+        body.dark .btn-reset:hover {
+            background: #2a3347;
+            color: var(--text);
+        }
+
+        body.dark .btn-outline:hover {
+            background: #2a3347;
+        }
+
+        body.dark .btn-edit:hover {
+            background: #2a3347;
+        }
+
+        body.dark .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        body.dark .stat-card.blue .stat-icon {
+            background: rgba(59, 130, 246, 0.12);
+        }
+
+        body.dark .stat-card.green .stat-icon {
+            background: rgba(34, 197, 94, 0.10);
+        }
+
+        body.dark .stat-card.yellow .stat-icon {
+            background: rgba(202, 138, 4, 0.10);
+        }
+
+        body.dark .stat-card.purple .stat-icon {
+            background: rgba(168, 85, 247, 0.10);
+        }
+
+        body.dark .toast {
+            background: #1c2333;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.3s var(--ease);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px 28px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #eff6ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.07);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-version {
+            background: #e5e7eb;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 5px;
+            margin-left: 2px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 0 24px 10px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s var(--ease), color 0.2s var(--ease), padding-left 0.2s var(--ease);
+            position: relative;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            bottom: 6px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.2s var(--ease);
+        }
+
+        .nav-item:hover {
+            background: #f9fafb;
+            color: var(--text);
+            padding-left: 28px;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            font-weight: 600;
+            padding-left: 28px;
+        }
+
+        .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar-bottom {
+            padding: 18px 24px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        .light-mode-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .light-mode-row span {
+            flex: 1;
+        }
+
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.25s var(--ease);
+            flex-shrink: 0;
+        }
+
+        .toggle.active {
+            background: var(--accent);
+        }
+
+        .toggle-knob {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.25s var(--ease);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle.active .toggle-knob {
+            left: 22px;
+        }
+
+        /* ===== MAIN ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 40px 44px;
+            max-width: calc(100vw - var(--sidebar-width));
+        }
+
+        /* ===== PAGE TRANSITIONS ===== */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        .page.active {
+            display: block;
+            animation: pageIn 0.3s var(--ease) forwards;
+        }
+
+        @keyframes pageIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 11px 22px;
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s var(--ease), transform 0.15s var(--ease), box-shadow 0.2s var(--ease);
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: #fff;
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            padding: 10px 18px;
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.15s var(--ease);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+            border-color: #c4c9d4;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14.5px;
+            cursor: pointer;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            transition: color 0.2s var(--ease), background 0.2s var(--ease);
+        }
+
+        .btn-cancel:hover {
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .btn-reset {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+            margin-left: auto;
+        }
+
+        .btn-reset:hover {
+            background: var(--bg);
+            color: var(--text);
+            border-color: #c4c9d4;
+        }
+
+        .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1.5px solid var(--danger);
+            color: var(--danger);
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s var(--ease), transform 0.15s var(--ease);
+        }
+
+        .btn-danger:hover {
+            background: #fef2f2;
+            transform: translateY(-1px);
+        }
+
+        .btn-edit {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1.5px solid var(--border);
+            color: var(--text-secondary);
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.15s var(--ease);
+        }
+
+        .btn-edit:hover {
+            background: var(--bg);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 22px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            transition: box-shadow 0.2s var(--ease);
+        }
+
+        .filter-bar:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            background: var(--input-bg);
+            border: 1.5px solid var(--input-border);
+            border-radius: 8px;
+            padding: 9px 36px 9px 13px;
+            font-size: 14px;
+            color: var(--text);
+            cursor: pointer;
+            min-width: 180px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            outline: none;
+            transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .select-wrapper.small select {
+            min-width: 80px;
+        }
+
+        .select-wrapper.author-select select {
+            min-width: 240px;
+        }
+
+        .select-wrapper select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .num-input {
+            width: 64px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 8px;
+            padding: 9px 10px;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--input-bg);
+            outline: none;
+            text-align: center;
+            transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .num-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .date-input {
+            border: 1.5px solid var(--input-border);
+            border-radius: 8px;
+            padding: 9px 13px;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--input-bg);
+            outline: none;
+            transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .date-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        /* ===== TASK LIST ===== */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: box-shadow 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.2s var(--ease);
+            animation: cardIn 0.3s var(--ease) both;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.25s var(--ease), background 0.25s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .task-checkbox:hover {
+            border-color: #22c55e;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+        }
+
+        .task-checkbox.done {
+            border-color: #22c55e;
+            background: #22c55e;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.35);
+        }
+
+        .task-checkbox.done::after {
+            content: '';
+            width: 9px;
+            height: 5px;
+            border-left: 2.5px solid #fff;
+            border-bottom: 2.5px solid #fff;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        .task-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+            transition: color 0.2s var(--ease);
+        }
+
+        .task-title.done-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .task-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 20px;
+            transition: opacity 0.2s;
+        }
+
+        .status-badge.in-progress {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-badge.in-progress::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #ca8a04;
+            flex-shrink: 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.85);
+            }
+        }
+
+        .status-badge.done-badge {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.done-badge::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            flex-shrink: 0;
+        }
+
+        .version-badge {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            background: #f3f4f6;
+            padding: 2px 9px;
+            border-radius: 12px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.2s var(--ease);
+        }
+
+        .task-card:hover .task-actions {
+            opacity: 1;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.15s var(--ease);
+        }
+
+        .icon-btn:hover {
+            background: #f3f4f6;
+            color: var(--text);
+            transform: scale(1.1);
+        }
+
+        .icon-btn.delete:hover {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        /* ===== USER GRID ===== */
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .user-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            transition: box-shadow 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.2s var(--ease);
+            animation: cardIn 0.3s var(--ease) both;
+        }
+
+        .user-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 14px;
+            flex-shrink: 0;
+            transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .user-card:hover .user-avatar {
+            transform: scale(1.06);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+        }
+
+        .user-name {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .user-phone {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 14px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .user-phone.none {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .user-badges {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            background: #f3f4f6;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .user-card-actions {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 22px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.25s var(--ease), transform 0.2s var(--ease);
+            animation: cardIn 0.35s var(--ease) both;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            transition: height 0.2s var(--ease);
+        }
+
+        .stat-card:hover::after {
+            height: 5px;
+        }
+
+        .stat-card.blue::after {
+            background: #3b82f6;
+        }
+
+        .stat-card.green::after {
+            background: #22c55e;
+        }
+
+        .stat-card.yellow::after {
+            background: #ca8a04;
+        }
+
+        .stat-card.purple::after {
+            background: #a855f7;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            transition: transform 0.2s var(--ease);
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.08);
+        }
+
+        .stat-card.blue .stat-icon {
+            background: #eff6ff;
+        }
+
+        .stat-card.green .stat-icon {
+            background: #f0fdf4;
+        }
+
+        .stat-card.yellow .stat-icon {
+            background: #fefce8;
+        }
+
+        .stat-card.purple .stat-icon {
+            background: #faf5ff;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            transition: transform 0.3s var(--ease);
+        }
+
+        .stat-value.blue {
+            color: #3b82f6;
+        }
+
+        .stat-value.green {
+            color: #22c55e;
+        }
+
+        .stat-value.yellow {
+            color: #ca8a04;
+        }
+
+        .stat-value.purple {
+            color: #a855f7;
+        }
+
+        .stat-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* ===== PROGRESS ===== */
+        .progress-section {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            animation: cardIn 0.4s var(--ease) both;
+        }
+
+        .progress-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .progress-count {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .progress-count.green {
+            color: #22c55e;
+        }
+
+        .progress-count.yellow {
+            color: #ca8a04;
+        }
+
+        .progress-bar-wrap {
+            height: 10px;
+            background: #f3f4f6;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-bar.green {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+
+        .progress-bar.yellow {
+            background: linear-gradient(90deg, #eab308, #ca8a04);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: opacity 0.25s var(--ease);
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: overlayIn 0.25s var(--ease) forwards;
+        }
+
+        @keyframes overlayIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 14px;
+            width: 480px;
+            max-width: calc(100vw - 32px);
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.92) translateY(16px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 26px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 17px;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.15s var(--ease);
+        }
+
+        .modal-close:hover {
+            background: var(--bg);
+            color: var(--text);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 20px 26px;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 26px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .field-label {
+            display: block;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 7px;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .field-input {
+            width: 100%;
+            border: 1.5px solid var(--input-border);
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-size: 15px;
+            color: var(--text);
+            background: var(--input-bg);
+            outline: none;
+            transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+            font-family: inherit;
+        }
+
+        .field-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .field-textarea {
+            width: 100%;
+            border: 1.5px solid var(--input-border);
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-size: 15px;
+            color: var(--text);
+            background: var(--input-bg);
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .field-textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14.5px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(90px) scale(0.95);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s var(--ease);
+            z-index: 9999;
+        }
+
+        .toast.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        /* ===== STAGGER ANIMATION DELAYS ===== */
+        .task-card:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .task-card:nth-child(2) {
+            animation-delay: 40ms;
+        }
+
+        .task-card:nth-child(3) {
+            animation-delay: 80ms;
+        }
+
+        .task-card:nth-child(4) {
+            animation-delay: 120ms;
+        }
+
+        .task-card:nth-child(5) {
+            animation-delay: 160ms;
+        }
+
+        .task-card:nth-child(6) {
+            animation-delay: 200ms;
+        }
+
+        .task-card:nth-child(n+7) {
+            animation-delay: 240ms;
+        }
+
+        .user-card:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .user-card:nth-child(2) {
+            animation-delay: 60ms;
+        }
+
+        .user-card:nth-child(3) {
+            animation-delay: 120ms;
+        }
+
+        .user-card:nth-child(4) {
+            animation-delay: 180ms;
+        }
+
+        .user-card:nth-child(n+5) {
+            animation-delay: 220ms;
+        }
+
+        .stat-card:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 60ms;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 120ms;
+        }
+
+        .stat-card:nth-child(4) {
+            animation-delay: 180ms;
+        }
+
+        /* ===== USER AVATAR COLORS ===== */
+        .avatar-0 {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .avatar-1 {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+        }
+
+        .avatar-2 {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .avatar-3 {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+
+        .avatar-4 {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .avatar-5 {
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+        }
+
+        .avatar-6 {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .avatar-7 {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="2" width="16" height="16" rx="3" stroke="#3b82f6" stroke-width="2" />
+                    <path d="M6 10l3 3 5-5" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <span class="logo-text">TodoApp</span>
+            <span class="logo-version">v1</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-label">НАВИГАЦИЯ</p>
+            <a href="#" class="nav-item active" data-page="tasks" onclick="navigate('tasks', this)">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="2" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Задачи
+            </a>
+            <a href="#" class="nav-item" data-page="users" onclick="navigate('users', this)">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" />
+                </svg>
+                Пользователи
+            </a>
+            <a href="#" class="nav-item" data-page="stats" onclick="navigate('stats', this)">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                    <rect x="3" y="11" width="3" height="6" rx="1" fill="currentColor" />
+                    <rect x="8.5" y="7" width="3" height="10" rx="1" fill="currentColor" />
+                    <rect x="14" y="3" width="3" height="14" rx="1" fill="currentColor" />
+                </svg>
+                Статистика
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="light-mode-row">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.8" />
+                    <path
+                        d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                <span>Light mode</span>
+                <div class="toggle active" id="themeToggle" onclick="toggleTheme()">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <!-- TASKS PAGE -->
+        <section id="page-tasks" class="page active">
+            <div class="page-header">
+                <h1>Задачи</h1>
+                <button class="btn-primary" onclick="openCreateTaskModal()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Новая задача
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Пользователь</label>
+                    <div class="select-wrapper" id="taskUserFilterWrapper">
+                        <select id="taskUserFilter" onchange="filterTasksByUser()">
+                            <option value="">Все пользователи</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>На странице</label>
+                    <input type="number" id="taskLimit" value="20" min="1" class="num-input" onchange="renderTasks()" />
+                    <div class="select-wrapper small">
+                        <select id="taskLimitSelect" onchange="syncLimit()">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-reset" onclick="resetTaskFilter()">Сбросить</button>
+            </div>
+
+            <div id="taskList" class="task-list"></div>
+        </section>
+
+        <!-- USERS PAGE -->
+        <section id="page-users" class="page">
+            <div class="page-header">
+                <h1>Пользователи</h1>
+                <button class="btn-primary" onclick="openCreateUserModal()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Новый пользователь
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>На странице</label>
+                    <input type="number" id="userLimit" value="20" min="1" class="num-input" onchange="renderUsers()" />
+                    <div class="select-wrapper small">
+                        <select onchange="document.getElementById('userLimit').value=this.value;renderUsers()">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="userList" class="user-grid"></div>
+        </section>
+
+        <!-- STATS PAGE -->
+        <section id="page-stats" class="page">
+            <div class="page-header">
+                <h1>Статистика</h1>
+                <button class="btn-outline" onclick="loadStats()">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10a6 6 0 1 0 1.5-3.9" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                        <path d="M4 5.5V10h4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Пользователь</label>
+                    <div class="select-wrapper" id="statsUserFilterWrapper">
+                        <select id="statsUserFilter">
+                            <option value="">Все пользователи</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>С</label>
+                    <input type="date" id="statsFrom" class="date-input" />
+                </div>
+                <div class="filter-group">
+                    <label>По</label>
+                    <input type="date" id="statsTo" class="date-input" />
+                </div>
+                <button class="btn-reset" onclick="resetStatsFilter()">Сбросить</button>
+            </div>
+            <div class="filter-bar" style="border:none;padding-top:0;">
+                <button class="btn-primary" onclick="loadStats()">Применить</button>
+            </div>
+
+            <div class="stats-cards" id="statsCards">
+                <div class="stat-card blue">
+                    <div class="stat-icon">
+                        <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 4v12M4 10h12" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-label">СОЗДАНО ЗАДАЧ</div>
+                    <div class="stat-value blue" id="statCreated">—</div>
+                    <div class="stat-sub">Всего в системе</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon">
+                        <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10l4 4 8-8" stroke="#22c55e" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-label">ВЫПОЛНЕНО ЗАДАЧ</div>
+                    <div class="stat-value green" id="statCompleted">—</div>
+                    <div class="stat-sub">Успешно завершены</div>
+                </div>
+                <div class="stat-card yellow">
+                    <div class="stat-icon">
+                        <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+                            <rect x="3" y="11" width="3" height="6" rx="1" fill="#ca8a04" />
+                            <rect x="8.5" y="7" width="3" height="10" rx="1" fill="#ca8a04" />
+                            <rect x="14" y="3" width="3" height="14" rx="1" fill="#ca8a04" />
+                        </svg>
+                    </div>
+                    <div class="stat-label">ПРОЦЕНТ ВЫПОЛНЕНИЯ</div>
+                    <div class="stat-value yellow" id="statRate">—</div>
+                    <div class="stat-sub">От всех созданных задач</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-icon">
+                        <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="7" stroke="#a855f7" stroke-width="1.8" />
+                            <path d="M10 6v4l2.5 2.5" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-label">СРЕДНЕЕ ВРЕМЯ ВЫПОЛНЕНИЯ</div>
+                    <div class="stat-value purple" id="statAvgTime">—</div>
+                    <div class="stat-sub">От создания до готовности</div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-title">ОБЗОР ПРОГРЕССА</div>
+                <div class="progress-row">
+                    <span class="progress-label">Выполнено</span>
+                    <span class="progress-count green" id="progCompletedLabel">0 / 0 (0.0%)</span>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar green" id="progCompletedBar" style="width:0%"></div>
+                </div>
+
+                <div class="progress-row" style="margin-top:16px;">
+                    <span class="progress-label">В работе</span>
+                    <span class="progress-count yellow" id="progInProgressLabel">0 / 0 (100.0%)</span>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar yellow" id="progInProgressBar" style="width:100%"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: Create Task -->
+    <div class="modal-overlay" id="modalCreateTask" onclick="closeModal('modalCreateTask')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Новая задача</h2>
+                <button class="modal-close" onclick="closeModal('modalCreateTask')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label class="field-label">Заголовок <span class="required">*</span></label>
+                <input type="text" id="newTaskTitle" class="field-input" placeholder="Домашка" />
+                <label class="field-label" style="margin-top:14px;">Описание</label>
+                <textarea id="newTaskDesc" class="field-textarea" placeholder="Сделать домашку"></textarea>
+                <label class="field-label" style="margin-top:14px;">Автор <span class="required">*</span></label>
+                <div class="select-wrapper author-select">
+                    <select id="newTaskAuthor"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('modalCreateTask')">Отмена</button>
+                <button class="btn-primary" onclick="createTask()">Создать задачу</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit Task -->
+    <div class="modal-overlay" id="modalEditTask" onclick="closeModal('modalEditTask')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Редактировать задачу</h2>
+                <button class="modal-close" onclick="closeModal('modalEditTask')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label class="field-label">Заголовок <span class="required">*</span></label>
+                <input type="text" id="editTaskTitle" class="field-input" />
+                <label class="field-label" style="margin-top:14px;">Описание</label>
+                <textarea id="editTaskDesc" class="field-textarea"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('modalEditTask')">Отмена</button>
+                <button class="btn-primary" onclick="saveEditTask()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Create User -->
+    <div class="modal-overlay" id="modalCreateUser" onclick="closeModal('modalCreateUser')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Новый пользователь</h2>
+                <button class="modal-close" onclick="closeModal('modalCreateUser')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label class="field-label">Полное имя <span class="required">*</span></label>
+                <input type="text" id="newUserName" class="field-input" placeholder="Ivan Ivanov" />
+                <label class="field-label" style="margin-top:14px;">Номер телефона</label>
+                <input type="text" id="newUserPhone" class="field-input" placeholder="+79998887766" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('modalCreateUser')">Отмена</button>
+                <button class="btn-primary" onclick="createUser()">Создать пользователя</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit User -->
+    <div class="modal-overlay" id="modalEditUser" onclick="closeModal('modalEditUser')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Редактировать пользователя</h2>
+                <button class="modal-close" onclick="closeModal('modalEditUser')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label class="field-label">Полное имя <span class="required">*</span></label>
+                <input type="text" id="editUserName" class="field-input" />
+                <label class="field-label" style="margin-top:14px;">Номер телефона</label>
+                <input type="text" id="editUserPhone" class="field-input" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('modalEditUser')">Отмена</button>
+                <button class="btn-primary" onclick="saveEditUser()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8l3.5 3.5L13 4" stroke="#22c55e" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+        <span id="toastMsg">Задача создана</span>
+    </div>
+
+    <script>
+        // ===== CONFIG =====
+        const API_BASE = 'http://127.0.0.1:5050/api/v1';
+
+        // ===== STATE =====
+        let users = [];
+        let tasks = [];
+        let editingTaskId = null;
+        let editingUserId = null;
+        let taskStartTimes = {}; // track when tasks went "in progress"
+
+        // ===== INIT =====
+        window.addEventListener('DOMContentLoaded', () => {
+            loadUsers().then(() => {
+                loadTasks();
+            });
+        });
+
+        // ===== NAVIGATION =====
+        function navigate(page, el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            if (page === 'stats') loadStats();
+            if (page === 'users') renderUsers();
+        }
+
+        // ===== API HELPERS =====
+        async function apiFetch(path, options = {}) {
+            try {
+                const res = await fetch(API_BASE + path, {
+                    headers: { 'Content-Type': 'application/json' },
+                    ...options,
+                });
+                if (res.status === 204) return null;
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || data.error || 'Ошибка');
+                return data;
+            } catch (e) {
+                console.error('API error:', e);
+                throw e;
+            }
+        }
+
+        // ===== USERS =====
+        async function loadUsers() {
+            try {
+                const data = await apiFetch('/users?limit=100&offset=0');
+                users = Array.isArray(data) ? data : [];
+            } catch {
+                users = [];
+            }
+            populateUserSelects();
+            renderUsers();
+        }
+
+        function populateUserSelects() {
+            const filters = ['taskUserFilter', 'statsUserFilter', 'newTaskAuthor'];
+            filters.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const isAuthor = id === 'newTaskAuthor';
+                // Save current value
+                const current = el.value;
+                el.innerHTML = isAuthor ? '' : '<option value="">Все пользователи</option>';
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = u.full_name;
+                    el.appendChild(opt);
+                });
+                if (current) el.value = current;
+            });
+        }
+
+        function renderUsers() {
+            const limit = parseInt(document.getElementById('userLimit').value) || 20;
+            const container = document.getElementById('userList');
+            const visible = users.slice(0, limit);
+
+            if (visible.length === 0) {
+                container.innerHTML = '<div class="empty-state">Нет пользователей</div>';
+                return;
+            }
+
+            container.innerHTML = visible.map((u, idx) => {
+                const initials = u.full_name.split(' ').map(p => p[0] || '').join('').substring(0, 2).toUpperCase();
+                const colorClass = `avatar-${idx % 8}`;
+                const phone = u.phone_number
+                    ? `<div class="user-phone"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M6.3 3H4a1 1 0 0 0-1 1v1C3 13.28 9.72 20 18 20h1a1 1 0 0 0 1-1v-2.3a1 1 0 0 0-.7-.95l-2.6-.87a1 1 0 0 0-1.05.25l-1.05 1.05a12.07 12.07 0 0 1-5.78-5.78L9.87 9.35a1 1 0 0 0 .25-1.05L9.25 5.7A1 1 0 0 0 8.3 5H7" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/></svg>${u.phone_number}</div>`
+                    : `<div class="user-phone none"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M6.3 3H4a1 1 0 0 0-1 1v1C3 13.28 9.72 20 18 20h1a1 1 0 0 0 1-1v-2.3a1 1 0 0 0-.7-.95l-2.6-.87a1 1 0 0 0-1.05.25l-1.05 1.05a12.07 12.07 0 0 1-5.78-5.78L9.87 9.35a1 1 0 0 0 .25-1.05L9.25 5.7A1 1 0 0 0 8.3 5H7" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/></svg>Нет телефона</div>`;
+
+                return `<div class="user-card">
+      <div class="user-avatar ${colorClass}">${initials}</div>
+      <div class="user-name">${escHtml(u.full_name)}</div>
+      ${phone}
+      <div class="user-badges">
+        <span class="badge">ID: ${u.id}</span>
+        <span class="badge">v${u.version}</span>
+      </div>
+      <div class="user-card-actions">
+        <button class="btn-edit" onclick="openEditUser(${u.id})">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5l3 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Edit
+        </button>
+        <button class="btn-danger" onclick="deleteUser(${u.id})">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M6 6l1 11h6l1-11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>`;
+            }).join('');
+        }
+
+        function openCreateUserModal() {
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserPhone').value = '';
+            openModal('modalCreateUser');
+        }
+
+        async function createUser() {
+            const full_name = document.getElementById('newUserName').value.trim();
+            const phone_number = document.getElementById('newUserPhone').value.trim();
+            if (!full_name) { alert('Введите имя'); return; }
+
+            const body = { full_name };
+            if (phone_number) body.phone_number = phone_number;
+
+            try {
+                const u = await apiFetch('/users', { method: 'POST', body: JSON.stringify(body) });
+                users.push(u);
+                closeModal('modalCreateUser');
+                populateUserSelects();
+                renderUsers();
+                showToast('Пользователь создан');
+            } catch (e) { alert(e.message); }
+        }
+
+        function openEditUser(id) {
+            const u = users.find(u => u.id === id);
+            if (!u) return;
+            editingUserId = id;
+            document.getElementById('editUserName').value = u.full_name;
+            document.getElementById('editUserPhone').value = u.phone_number || '';
+            openModal('modalEditUser');
+        }
+
+        async function saveEditUser() {
+            const full_name = document.getElementById('editUserName').value.trim();
+            const phone_number = document.getElementById('editUserPhone').value.trim();
+            if (!full_name) { alert('Введите имя'); return; }
+
+            const body = { full_name };
+            if (phone_number) body.phone_number = phone_number;
+            else body.phone_number = null;
+
+            try {
+                const updated = await apiFetch(`/users/${editingUserId}`, { method: 'PATCH', body: JSON.stringify(body) });
+                const idx = users.findIndex(u => u.id === editingUserId);
+                if (idx !== -1) users[idx] = updated;
+                closeModal('modalEditUser');
+                populateUserSelects();
+                renderUsers();
+                showToast('Пользователь обновлён');
+            } catch (e) { alert(e.message); }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Удалить пользователя?')) return;
+            try {
+                await apiFetch(`/users/${id}`, { method: 'DELETE' });
+                users = users.filter(u => u.id !== id);
+                tasks = tasks.filter(t => t.author_user_id !== id);
+                populateUserSelects();
+                renderUsers();
+                renderTasks();
+                showToast('Пользователь удалён');
+            } catch (e) { alert(e.message); }
+        }
+
+        // ===== TASKS =====
+        async function loadTasks() {
+            const uid = document.getElementById('taskUserFilter').value;
+            const limit = parseInt(document.getElementById('taskLimit').value) || 20;
+            let url = `/tasks?limit=${limit}&offset=0`;
+            if (uid) url += `&user_id=${uid}`;
+            try {
+                const data = await apiFetch(url);
+                tasks = Array.isArray(data) ? data : [];
+            } catch {
+                tasks = [];
+            }
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const uid = document.getElementById('taskUserFilter').value;
+            const limit = parseInt(document.getElementById('taskLimit').value) || 20;
+            let visible = tasks;
+            if (uid) visible = tasks.filter(t => String(t.author_user_id) === String(uid));
+            visible = visible.slice(0, limit);
+
+            const container = document.getElementById('taskList');
+            if (visible.length === 0) {
+                container.innerHTML = '<div class="empty-state">Задачи не найдены</div>';
+                return;
+            }
+
+            container.innerHTML = visible.map(t => {
+                const author = users.find(u => u.id === t.author_user_id);
+                const authorName = author ? author.full_name : `User #${t.author_user_id}`;
+                const date = t.created_at ? formatDate(t.created_at) : '';
+                const isDone = t.completed;
+                const elapsed = getElapsed(t);
+
+                const statusBadge = isDone
+                    ? `<span class="status-badge done-badge">Выполнено · ${elapsed}</span>`
+                    : `<span class="status-badge in-progress">В работе · ${elapsed}</span>`;
+
+                return `<div class="task-card">
+      <div class="task-checkbox ${isDone ? 'done' : ''}" onclick="toggleTask(${t.id}, ${isDone})"></div>
+      <div class="task-body">
+        <div class="task-title ${isDone ? 'done-text' : ''}">${escHtml(t.title)}</div>
+        ${t.description ? `<div class="task-desc">${escHtml(t.description)}</div>` : ''}
+        <div class="task-meta">
+          <span class="meta-item">
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 17c0-3 2.686-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            ${escHtml(authorName)}
+          </span>
+          <span class="meta-item">ID: ${t.author_user_id}</span>
+          ${date ? `<span class="meta-item">
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            ${date}
+          </span>` : ''}
+          ${statusBadge}
+          <span class="version-badge">v${t.version}</span>
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="icon-btn" onclick="openEditTask(${t.id})" title="Редактировать">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5l3 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn delete" onclick="deleteTask(${t.id})" title="Удалить">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M6 6l1 11h6l1-11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>`;
+            }).join('');
+        }
+
+        function filterTasksByUser() {
+            loadTasks();
+        }
+
+        function resetTaskFilter() {
+            document.getElementById('taskUserFilter').value = '';
+            document.getElementById('taskLimit').value = 20;
+            loadTasks();
+        }
+
+        function syncLimit() {
+            const val = document.getElementById('taskLimitSelect').value;
+            document.getElementById('taskLimit').value = val;
+            loadTasks();
+        }
+
+        function openCreateTaskModal() {
+            document.getElementById('newTaskTitle').value = '';
+            document.getElementById('newTaskDesc').value = '';
+            populateUserSelects();
+            openModal('modalCreateTask');
+        }
+
+        async function createTask() {
+            const title = document.getElementById('newTaskTitle').value.trim();
+            const description = document.getElementById('newTaskDesc').value.trim();
+            const author_user_id = parseInt(document.getElementById('newTaskAuthor').value);
+
+            if (!title) { alert('Введите заголовок'); return; }
+            if (!author_user_id) { alert('Выберите автора'); return; }
+
+            const body = { title, author_user_id };
+            if (description) body.description = description;
+
+            try {
+                const t = await apiFetch('/tasks', { method: 'POST', body: JSON.stringify(body) });
+                tasks.unshift(t);
+                closeModal('modalCreateTask');
+                renderTasks();
+                showToast('Задача создана');
+            } catch (e) { alert(e.message); }
+        }
+
+        function openEditTask(id) {
+            const t = tasks.find(t => t.id === id);
+            if (!t) return;
+            editingTaskId = id;
+            document.getElementById('editTaskTitle').value = t.title;
+            document.getElementById('editTaskDesc').value = t.description || '';
+            openModal('modalEditTask');
+        }
+
+        async function saveEditTask() {
+            const title = document.getElementById('editTaskTitle').value.trim();
+            const description = document.getElementById('editTaskDesc').value.trim();
+            if (!title) { alert('Введите заголовок'); return; }
+
+            const body = { title };
+            if (description) body.description = description;
+            else body.description = null;
+
+            try {
+                const updated = await apiFetch(`/tasks/${editingTaskId}`, { method: 'PATCH', body: JSON.stringify(body) });
+                const idx = tasks.findIndex(t => t.id === editingTaskId);
+                if (idx !== -1) tasks[idx] = updated;
+                closeModal('modalEditTask');
+                renderTasks();
+                showToast('Задача обновлена');
+            } catch (e) { alert(e.message); }
+        }
+
+        async function deleteTask(id) {
+            if (!confirm('Удалить задачу?')) return;
+            try {
+                await apiFetch(`/tasks/${id}`, { method: 'DELETE' });
+                tasks = tasks.filter(t => t.id !== id);
+                renderTasks();
+                showToast('Задача удалена');
+            } catch (e) { alert(e.message); }
+        }
+
+        async function toggleTask(id, currentlyDone) {
+            try {
+                const updated = await apiFetch(`/tasks/${id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ completed: !currentlyDone })
+                });
+                const idx = tasks.findIndex(t => t.id === id);
+                if (idx !== -1) tasks[idx] = updated;
+                renderTasks();
+                showToast(currentlyDone ? 'Задача возобновлена' : 'Задача выполнена');
+            } catch (e) { alert(e.message); }
+        }
+
+        // ===== STATS =====
+        async function loadStats() {
+            const uid = document.getElementById('statsUserFilter').value;
+            const from = document.getElementById('statsFrom').value;
+            const to = document.getElementById('statsTo').value;
+
+            let url = '/statistics';
+            const params = [];
+            if (uid) params.push(`user_id=${uid}`);
+            if (from) params.push(`from=${from}`);
+            if (to) params.push(`to=${to}`);
+            if (params.length) url += '?' + params.join('&');
+
+            try {
+                const s = await apiFetch(url);
+                document.getElementById('statCreated').textContent = s.tasks_created ?? 0;
+                document.getElementById('statCompleted').textContent = s.tasks_completed ?? 0;
+                document.getElementById('statRate').textContent = (s.tasks_completed_rate ?? 0).toFixed(1) + '%';
+                document.getElementById('statAvgTime').textContent = s.tasks_average_completion_time || '—';
+
+                const created = s.tasks_created || 0;
+                const completed = s.tasks_completed || 0;
+                const inProgress = created - completed;
+                const completedPct = created > 0 ? (completed / created * 100).toFixed(1) : 0;
+                const inProgressPct = created > 0 ? (inProgress / created * 100).toFixed(1) : 0;
+
+                document.getElementById('progCompletedLabel').textContent = `${completed} / ${created} (${completedPct}%)`;
+                document.getElementById('progInProgressLabel').textContent = `${inProgress} / ${created} (${inProgressPct}%)`;
+                document.getElementById('progCompletedBar').style.width = completedPct + '%';
+                document.getElementById('progInProgressBar').style.width = inProgressPct + '%';
+            } catch (e) {
+                console.error('Stats error:', e);
+            }
+        }
+
+        function resetStatsFilter() {
+            document.getElementById('statsUserFilter').value = '';
+            document.getElementById('statsFrom').value = '';
+            document.getElementById('statsTo').value = '';
+            loadStats();
+        }
+
+        // ===== MODAL HELPERS =====
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+        // ===== TOAST =====
+        let toastTimer = null;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ===== THEME =====
+        function toggleTheme() {
+            const toggle = document.getElementById('themeToggle');
+            toggle.classList.toggle('active');
+            // Light mode is always on in screenshots — toggling off would be "dark"
+            // For now just visually toggle
+        }
+
+        // ===== UTILS =====
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatDate(iso) {
+            const d = new Date(iso);
+            if (isNaN(d)) return '';
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getElapsed(task) {
+            // If completed, show completion duration
+            if (task.completed && task.completed_at && task.completed_at !== 'null' && task.created_at) {
+                const ms = new Date(task.completed_at) - new Date(task.created_at);
+                return formatDuration(ms);
+            }
+            // If in progress, show time since creation
+            if (task.created_at) {
+                const ms = Date.now() - new Date(task.created_at);
+                return formatDuration(ms);
+            }
+            return '—';
+        }
+
+        function formatDuration(ms) {
+            if (isNaN(ms) || ms < 0) return '0с';
+            const totalSec = Math.floor(ms / 1000);
+            if (totalSec < 60) return totalSec + 'с';
+            const mins = Math.floor(totalSec / 60);
+            if (mins < 60) return mins + 'м';
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return hours + 'ч';
+            const days = Math.floor(hours / 24);
+            return days + 'д';
+        }
+
+        // ===== THEME OVERRIDE (replaces stub above) =====
+        // Monkey-patch: redefine toggleTheme properly
+        window.toggleTheme = function () {
+            const toggle = document.getElementById('themeToggle');
+            const isDark = document.body.classList.toggle('dark');
+            // In the original UI, toggle ON = Light mode. So active class = light.
+            toggle.classList.toggle('active', !isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        };
+
+        // Restore saved theme on load
+        (function () {
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) {
+                document.body.classList.add('dark');
+                window.addEventListener('DOMContentLoaded', () => {
+                    const t = document.getElementById('themeToggle');
+                    if (t) t.classList.remove('active');
+                });
+            }
+        })();
+
+    </script>
+</body>
+
+</html>

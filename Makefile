@@ -80,7 +80,7 @@ todoapp-run:
 	go run $(PROJECT_ROOT)/cmd/todoapp/main.go
 
 .PHONY: todoapp-deploy
-todoapp-deploy: env-up   env-port-forward   migrate-up   swagger-gen   env-port-close
+todoapp-deploy: 
 	@docker compose up -d --build todoapp
 
 .PHONY: todoapp-undeploy

@@ -41,6 +41,19 @@ func (h *HTTPResponseHandler) NoContentResponse() {
 	h.rw.WriteHeader(http.StatusNoContent)
 }
 
+func (h *HTTPResponseHandler) MethodNotAllowed() {
+	h.rw.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+func (h *HTTPResponseHandler) HTMLResponse(html []byte) {
+	h.rw.WriteHeader(http.StatusOK)
+
+	h.rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if _, err := h.rw.Write(html); err != nil {
+		h.log.Error("write HTTP file", zap.Error(err))
+	}
+}
+
 func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	var (
 		statusCode int

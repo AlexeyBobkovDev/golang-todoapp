@@ -100,8 +100,8 @@ definitions:
   tasks_transport_http.PatchTaskRequest:
     properties:
       completed:
-        example: "false"
-        type: string
+        example: false
+        type: boolean
       description:
         example: Walk a dog at 6:30 am
         type: string
