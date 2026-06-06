@@ -14,7 +14,7 @@ import (
 type PatchTaskRequest struct {
 	Title       core_http_types.Nullable[string] `json:"title"         swaggertype:"string" example:"Walk a dog"`
 	Description core_http_types.Nullable[string] `json:"description"   swaggertype:"string" example:"Walk a dog at 6:30 am"`
-	Completed   core_http_types.Nullable[bool]   `json:"completed"     swaggertype:"string" example:"false"`
+	Completed   core_http_types.Nullable[bool]   `json:"completed"     swaggertype:"boolean" example:"false"`
 }
 
 func (r *PatchTaskRequest) Validate() error {

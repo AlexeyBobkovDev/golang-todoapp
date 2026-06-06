@@ -4,7 +4,6 @@
 .vscode
 
 out/
-docs/
 
 .env
 .env.example
